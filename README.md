@@ -2,7 +2,11 @@
 
 ## Overview
 
-The playbook uses the scanner listed above to dicovers is a system is viulnerable.
+The playbook uses the scanner listed above to discovers is a system is vulnerable.
+
+## Warning
+
+This can make changes to your system you are responsible for testing that this has no adverse effect on your system.
 
 ## Associated Links
 

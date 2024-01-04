@@ -1,0 +1,37 @@
+---
+- name: Fix Ubuntu1804 based servers
+  when:
+    - ansible_facts.distribution == 'Ubuntu'
+    - ansible_facts.distribution_major_version is version_compare ('18', '==' )
+  block:
+    - name: Update ssh client configurations
+      become: true
+      notify: Restart_sshd
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: ^ciphers
+        line: "ciphers {{ el7_based_ciphers }}"
+
+    - name: Update ssh server configurations
+      become: true
+      notify: Restart_sshd
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config
+        regexp: ^Ciphers
+        line: "Ciphers {{ el7_based_ciphers }}"
+
+- name: Update openssh packages | Ubuntu 20+
+  when:
+    - ansible_facts.distribution == 'Ubuntu'
+    - ansible_facts.distribution_major_version is version_compare ( '20', '>=' )
+  notify: Restart_sshd
+  ansible.builtin.package:
+    name:
+      - openssh-client
+      - openssh-server
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,81 @@
+---
+
+- name: Check Scanner doesn't exist
+  ansible.builtin.stat:
+    path: "{{ terrapin_remote_path }}/Terrapin-Scanner"
+  register: scanner_present
+
+- name: Setup Terrapin on system
+  when:
+  - copy_scanner
+  - not scanner_present.stat.exists
+  ansible.builtin.copy:
+    src: Terrapin-Scanner
+    dest: "{{ terrapin_remote_path }}/Terrapin-Scanner"
+    mode: '0555'
+
+- name: Get scanner
+  when:
+  - get_scanner
+  - not scanner_present.stat.exists
+  ansible.builtin.get_url:
+    url: "{{ scanner_url }}"
+    dest: "{{ terrapin_remote_path }}Terrapin-Scanner"
+    checksum: "{{ scanner_sum }}"
+    mode: '0550'
+
+- name: Ensure scanner exists for client tests
+  when: test_ssh_client
+  ansible.builtin.assert:
+    that: scanner_present.stat.exists
+    fail_msg: "Warning The scanner cannot be found at path {{ terrapin_remote_path }}Terrapin-Scanner"
+
+- name: Check server current vulnerability state
+  when: test_ssh_server
+  ansible.builtin.include_tasks:
+    file: terrapin_server_tests.yml
+
+- name: Check client current vulnerability state
+  when: test_ssh_client
+  ansible.builtin.include_tasks:
+    file: terrapin_client_tests.yml
+
+- name: Output Pre-remediation scanner results
+  ansible.builtin.debug:
+    msg: |
+       {{ ansible_facts.hostname }} - Terrapin SSH Vulnerability - Pre-Remediation
+       {% if test_ssh_server %}- Server vulnerable: {{ ssh_server_vulnerable }}{% endif %}
+
+       {% if test_ssh_server %}- Client vulnerable: {{ ssh_client_vulnerable }}{% endif %}
+
+- name: Include remediate task
+  when:
+  - fix_the_terrapin
+  - ssh_server_vulnerable or
+    ssh_client_vulnerable
+  ansible.builtin.include_tasks:
+    file: "remediate_{{ ansible_facts.os_family }}.yml"
+
+- name: Check server current vulnerability state
+  when:
+  - fix_the_terrapin
+  - ssh_server_vulnerable
+  ansible.builtin.include_tasks:
+    file: terrapin_server_tests.yml
+
+- name: Check client current vulnerability state
+  when:
+  - fix_the_terrapin
+  - ssh_client_vulnerable
+  ansible.builtin.include_tasks:
+    file: terrapin_client_tests.yml
+
+- name: Output Post-remediation scanner results
+  when:
+  - fix_the_terrapin
+  ansible.builtin.debug:
+    msg: |
+       {{ ansible_facts.hostname }} - Terrapin SSH Vulnerability - Post-Remediation
+       {% if test_ssh_server %}- Server vulnerable: {{ ssh_server_vulnerable }}{% endif %}
+
+       {% if test_ssh_server %}- Client vulnerable: {{ ssh_client_vulnerable }}{% endif %}

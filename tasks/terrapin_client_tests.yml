@@ -1,0 +1,25 @@
+---
+
+- name: Run SSH client listener on localhost port
+  ansible.builtin.shell: "{{ terrapin_client_scan_command }}"
+  async: 30
+  poll: 0
+  changed_when: false
+  failed_when: false
+  register: ssh_client_test
+
+- name: Test SSH client listener
+  ansible.builtin.shell: ssh -p "{{ terrapin_client_test_port }}" localhost
+  changed_when: false
+  failed_when: ssh_connection_test.rc not in [ 0, 1, 255 ]
+  register: ssh_connection_test
+
+- name: Get output of listener
+  ansible.builtin.async_status:
+    jid: "{{ ssh_client_test.ansible_job_id }}"
+  changed_when: false
+  register: client_listener_result
+
+- name: Set client test status
+  ansible.builtin.set_fact:
+    ssh_client_vulnerable: "{{ client_listener_result.stdout | from_json | json_query('Vulnerable') }}"

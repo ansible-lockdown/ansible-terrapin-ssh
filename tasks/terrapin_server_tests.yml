@@ -1,0 +1,28 @@
+---
+
+- name: Run SSH server scan | Localhost
+  when: not terrapin_run_remote_scan
+  block:
+    - name: Run SSH server scan | Localhost
+      ansible.builtin.shell: "{{ terrapin_remote_path }}{{ terrapin_server_scan_command }} localhost"
+      changed_when: false
+      failed_when: ssh_server_test.rc not in [ 0, 1 ]
+      register: ssh_server_test
+
+    - name: Set Server test status
+      ansible.builtin.set_fact:
+        ssh_server_vulnerable: "{{ ssh_server_test.stdout | from_json | json_query('Vulnerable') }}"
+
+- name: Run SSH server scan | Remote scan
+  when: terrapin_run_remote_scan
+  block:
+    - name: Run SSH server scan | Remote scan
+      delegate_to: localhost
+      ansible.builtin.shell: "{{ terrapin_localhost_path }}{{ terrapin_server_scan_command }} {{ ansible_host }}:{{ terrapin_server_port | default('22') }}"
+      changed_when: false
+      failed_when: ssh_server_test.rc not in [ 0, 1 ]
+      register: ssh_server_test
+
+    - name: Set Server test status
+      ansible.builtin.set_fact:
+        ssh_server_vulnerable: "{{ ssh_server_test.stdout | from_json | json_query('Vulnerable') }}"

@@ -1,0 +1,8 @@
+---
+- name: Run updates for ssh terrapin bug
+  hosts: all
+  become: false
+
+  roles:
+
+    - role: "{{ playbook_dir }}"

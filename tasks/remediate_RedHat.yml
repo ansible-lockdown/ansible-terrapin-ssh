@@ -1,0 +1,46 @@
+---
+
+- name: Fix EL7 based servers
+  when: ansible_facts.distribution_major_version is version_compare ('7', '==' )
+  block:
+    - name: Update ssh client configurations
+      become: true
+      notify: Restart_sshd
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: ^ciphers
+        line: "ciphers {{ el7_based_ciphers }}"
+
+    - name: Update ssh server configurations
+      become: true
+      notify: Restart_sshd
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config
+        regexp: ^Ciphers
+        line: "Ciphers {{ el7_based_ciphers }}"
+
+- name: Fix EL8+ servers
+  when: ansible_facts.distribution_major_version is version_compare ('8', '>=')
+  block:
+    - name: Discover current crypto-policy | RH8+
+      ansible.builtin.shell: update-crypto-policies --show
+      changed_when: false
+      failed_when: current_crypto_policy.rc not in [ 0, 1 ]
+      register: current_crypto_policy
+
+    - name: Add Crypto policy module for terrapin work around | RH8+
+      ansible.builtin.template:
+        src: TERRAPIN.pmod.j2
+        dest: /etc/crypto-policies/policies/modules/TERRAPIN.pmod
+        owner: root
+        group: root
+        mode: '0440'
+      become: true
+
+    - name: Update to include the crypto policy module | RH8+
+      notify: Restart_sshd
+      ansible.builtin.shell: "update-crypto-policies --set {{ current_crypto_policy.stdout }}:TERRAPIN"
+      become: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

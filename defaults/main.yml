@@ -39,6 +39,5 @@ terrapin_server_port: 22
 el7_based_ciphers: aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
 
 # Terrapin Client tests
-terrapin_test_client: true
 terrapin_client_test_port: 2222
 terrapin_client_scan_command: "{{ terrapin_remote_path }}Terrapin-Scanner --json --listen localhost:{{ terrapin_client_test_port }}"

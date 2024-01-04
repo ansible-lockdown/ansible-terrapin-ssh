@@ -40,7 +40,6 @@ terrapin_localhost_path: '~/go/bin/'
 terrapin_server_scan_command: "Terrapin-Scanner --json --connect"
 terrapin_server_port: 22
 el7_based_ciphers: aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-terrapin_test_client: true
 terrapin_client_test_port: 2222
 terrapin_client_scan_command: "{{ terrapin_remote_path }}Terrapin-Scanner --json --listen localhost:{{ terrapin_client_test_port }}"
 ```
@@ -77,7 +76,7 @@ terrapin_client_scan_command: "{{ terrapin_remote_path }}Terrapin-Scanner --json
 
 ### Terrapin Client Testing
 
-- `terrapin_test_client`: If set to `true`, the playbook will perform Terrapin-Scanner tests on the client.
+- `test_ssh_client`: If set to `true`, the playbook will perform Terrapin-Scanner tests on the client.
 - `terrapin_client_test_port`: Port for Terrapin client testing.
 - `terrapin_client_scan_command`: Terrapin client scan command.
 

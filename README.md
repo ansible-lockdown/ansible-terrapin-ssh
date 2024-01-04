@@ -88,3 +88,12 @@ terrapin_client_scan_command: "{{ terrapin_remote_path }}Terrapin-Scanner --json
 **Note:** Ensure that Terrapin-Scanner dependencies are met and the specified paths and URLs are accessible.
 
 For more information about Terrapin-Scanner, refer to the official documentation: [Terrapin-Scanner GitHub Repository](https://github.com/RUB-NDS/Terrapin-Scanner)
+
+## Associated Links
+
+- [Terrapin Attack](https://terrapin-attack.com)
+- [NIST CVE](https://nvd.nist.gov/vuln/detail/CVE-2023-48795)
+
+### Credits
+
+Thanks to @lucab85 for feedback

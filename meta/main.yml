@@ -1,0 +1,45 @@
+---
+
+galaxy_info:
+    author: "Mark Bolwell(uk-bolly)"
+    description: "Terrapin SSH test and remediation"
+    company: "MindPoint Group"
+    license: MIT
+    role_name: ansible_terrapin_ssh
+    namespace: mindpointgroup
+    min_ansible_version: 2.11.1
+    platforms:
+        - name: Debian
+          versions:
+              - buster
+              - bullseye
+              - bookworm
+        - name: EL
+          versions:
+              - "7"
+              - "8"
+              - "9"
+        - name: Ubuntu
+          versions:
+              - bionic
+              - focal
+              - jammy
+    galaxy_tags:
+        - system
+        - security
+        - hardening
+        - terrapin
+        - ssh
+        - compliance
+        - redhat
+        - complianceascode
+        - disa
+        - rhel7
+        - rhel8
+        - rhel9
+        - rocky
+        - alma
+        - debian
+        - ubuntu
+collections: []
+dependencies: []

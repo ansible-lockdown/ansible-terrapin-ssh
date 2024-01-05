@@ -8,6 +8,7 @@ The `terrapin-ssh` playbook is designed to test and remediate SSH server and cli
 
 - ansible 2.11.12+
 - ansible 2.16.1
+- Debian 10+
 - EL7,8,9
 - Ubuntu18,20,22
 

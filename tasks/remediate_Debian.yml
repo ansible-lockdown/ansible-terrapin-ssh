@@ -1,29 +1,29 @@
 ---
-- name: Fix Ubuntu1804 based servers
+- name: Fix Debian10 or Ubuntu18 based servers
   when:
-    - ansible_facts.distribution == 'Ubuntu'
-    - ansible_facts.distribution_major_version is version_compare ('18', '==' )
-  block:
-    - name: Update ssh client configurations
-      become: true
-      notify: Restart_sshd
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: ^ciphers
-        line: "ciphers {{ el7_based_ciphers }}"
+    - ansible_facts.distribution == 'Debian' and
+      ansible_facts.distribution_major_version is version_compare ( '10', '==' )
+      or
+      ansible_facts.distribution == 'Ubuntu' and
+      ansible_facts.distribution_major_version is version_compare ('18', '==' )
+  become: true
+  notify: Restart_sshd
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regexp: ^Ciphers
+    line: "Ciphers {{ el7_based_ciphers }}"
+  loop:
+    - /etc/ssh/ssh_config
+    - /etc/ssh/sshd_config
 
-    - name: Update ssh server configurations
-      become: true
-      notify: Restart_sshd
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/ssh_config
-        regexp: ^Ciphers
-        line: "Ciphers {{ el7_based_ciphers }}"
-
-- name: Update openssh packages | Ubuntu 20+
+- name: Update openssh packages | Debian 11+ or Ubuntu 20+
   when:
-    - ansible_facts.distribution == 'Ubuntu'
-    - ansible_facts.distribution_major_version is version_compare ( '20', '>=' )
+    - ansible_facts.distribution == 'Debian' and
+      ansible_facts.distribution_major_version is version_compare ( '11', '>=' )
+      or
+      ansible_facts.distribution == 'Ubuntu' and
+      ansible_facts.distribution_major_version is version_compare ( '20', '>=' )
+
   notify: Restart_sshd
   ansible.builtin.package:
     name:

@@ -12,7 +12,7 @@
   ansible.builtin.copy:
     src: Terrapin-Scanner
     dest: "{{ terrapin_remote_path }}/Terrapin-Scanner"
-    mode: '0555'
+    mode: '0550'
 
 - name: Get scanner
   when:
@@ -23,6 +23,14 @@
     dest: "{{ terrapin_remote_path }}Terrapin-Scanner"
     checksum: "{{ scanner_sum }}"
     mode: '0550'
+
+- name: Check Scanner doesn't exist
+  when:
+  - not get_scanner
+  - not copy_scanner
+  ansible.builtin.stat:
+    path: "{{ terrapin_remote_path }}/Terrapin-Scanner"
+  register: scanner_present
 
 - name: Ensure scanner exists for client tests
   when: test_ssh_client

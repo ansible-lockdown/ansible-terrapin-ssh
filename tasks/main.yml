@@ -1,9 +1,14 @@
 ---
 
-- name: Check Scanner doesn't exist
+- name: Set scanner platform
+  ansible.builtin.set_fact:
+    scanner_platform: "{% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'arm64' %}aarch64{% elif ansible_architecture == 'arm' %}arm{% elif ansible_architecture == 'i386' %}i386{% endif %}"
+
+- name: Check Scanner if exist
   ansible.builtin.stat:
     path: "{{ terrapin_remote_path }}/Terrapin-Scanner"
   register: scanner_present
+
 
 - name: Setup Terrapin on system
   when:
@@ -24,10 +29,9 @@
     checksum: "{{ scanner_sum }}"
     mode: '0550'
 
-- name: Check Scanner doesn't exist
+- name: Check Scanner exists
   when:
-  - not get_scanner
-  - not copy_scanner
+  - get_scanner or copy_scanner
   ansible.builtin.stat:
     path: "{{ terrapin_remote_path }}/Terrapin-Scanner"
   register: scanner_present
